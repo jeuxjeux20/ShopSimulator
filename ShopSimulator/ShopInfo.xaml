@@ -1,0 +1,45 @@
+﻿<Page
+    x:Class="ShopSimulator.ShopInfo"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShopSimulator"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+<Page.Resources>
+        <SolidColorBrush x:Key="Accent" Color="{StaticResource SystemAccentColor}"/>
+    </Page.Resources>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="5*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Viewbox StretchDirection="DownOnly">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="{x:Bind ToDisplay.UpperName}" x:Name="Textboxx" FontSize="30" FontWeight="Bold"/>
+                    <TextBlock TextAlignment="Center" Foreground="#FF1C870C" FontWeight="Bold" FontSize="18"><Run Text="{x:Bind ToDisplay.Price}"/>$</TextBlock>
+                    <Button HorizontalAlignment="Center" Background="{StaticResource Accent}" Content="BUY !" BorderBrush="#FF636363" Margin="0,10,0,0" FontWeight="Bold" FontSize="16" Tapped="UIElement_OnTapped" IsEnabled="{x:Bind ToDisplay.IsBoughtInversed}"/>
+                </StackPanel>
+            </Viewbox>
+        </StackPanel>
+        <Pivot Grid.Row="1">
+            <PivotItem Header="Description">
+                <Grid>
+                    <TextBlock Text="{x:Bind ToDisplay.Description}" Margin="50,20,0,0" HorizontalAlignment="Left"/>
+                </Grid>
+            </PivotItem>
+           
+            <PivotItem Header="Vendor description">
+                <Grid>
+                    <TextBlock Text="{x:Bind ToDisplay.VendorDesc}" Margin="50,20,0,0" HorizontalAlignment="Left"/>
+                </Grid>
+            </PivotItem>
+        </Pivot>
+        <!--<ContentDialog x:Name="BuyDialog" Visibility="Collapsed" PrimaryButtonText="Sure !" SecondaryButtonText="No, thanks you" Title="Are you sure you want to buy that ?" PrimaryButtonClick="buyit"></ContentDialog>-->
+
+    </Grid>
+</Page>
+
+
+
