@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using ShopSimulator.Annotations;
-using System.Threading.Tasks;
-using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Input;
+using ShopSimulator.Annotations;
 
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -21,9 +22,9 @@ namespace ShopSimulator
     public sealed partial class MainPage : INotifyPropertyChanged
     {
         public static Frame MainFrame;
-        public static MainPage myself;
-        private readonly ObservableCollection<ShopItem> _shopItems = new ObservableCollection<ShopItem>();
+        public static MainPage Myself;
         private readonly ObservableCollection<ShopItem> _boughtItems = new ObservableCollection<ShopItem>();
+        private readonly ObservableCollection<ShopItem> _shopItems = new ObservableCollection<ShopItem>();
         private double _balance = 100;
 
         public MainPage()
@@ -37,18 +38,35 @@ namespace ShopSimulator
             _shopItems.Add(new ShopItem("Shit", 0.01));
             _shopItems.Add(new ShopItem("jeuxjeux20", 0.20));
             _shopItems.Add(new ShopItem("Chaten", 7.5, "Likes to FUCK OFF hahahaha"));
+            _shopItems.Add(new ShopItem("darkshadow97056", 3.1, "Likes dogecoins", "Have school wowowowow"));
             //  _shopItems.Add(new ShopItem("LONG NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAME",2.5,"test name ww"));
-            main.ItemsSource = _shopItems;
-            MainFrame = frame;
-            myself = this;
+            Main.ItemsSource = _shopItems;
+            MainFrame = Frame;
+            Myself = this;
             DataContext = this;
             Bought.ItemsSource = _boughtItems;
-            main.SelectionChanged += Main_SelectionChanged;
+            Main.SelectionChanged += Main_SelectionChanged;
         }
 
+        public double Balance
+        {
+            get { return _balance; }
+            set
+            {
+                _balance = value;
+                // ReSharper disable once RedundantArgumentDefaultValue
+                OnPropertyChanged("Balance");
+            }
+        }
+
+        public bool IsThereAnyChecked => Main.SelectedItems.Count > 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private void Main_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {          
-                SAppBarButton.IsEnabled = main.SelectedItems.Count > 0;
+        {
+            
+            SAppBarButton.IsEnabled = Main.SelectedItems.Count > 0;
         }
 
         public void RequestBought(ShopItem s)
@@ -56,24 +74,11 @@ namespace ShopSimulator
             _shopItems.RemoveAt(_shopItems.IndexOf(s));
             _boughtItems.Add(s);
         }
-        public double Balance
-        {
-            get { return _balance; }
-            set
-            {
-                _balance = value;
-                OnPropertyChanged(nameof(Balance));
-            }
-        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private void Uncheck(object sender, RoutedEventArgs e) => Main.SelectionMode = ListViewSelectionMode.Extended;
 
-        private void Uncheck(object sender, RoutedEventArgs e) => main.SelectionMode = ListViewSelectionMode.Extended;
+        private void Checkd(object sender, RoutedEventArgs e) => Main.SelectionMode = ListViewSelectionMode.Multiple;
 
-        private void Checkd(object sender, RoutedEventArgs e) => main.SelectionMode = ListViewSelectionMode.Multiple;
-
-        public bool IsThereAnyChecked => main.SelectedItems.Count > 0;
-        
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             Balance += 10;
@@ -87,22 +92,20 @@ namespace ShopSimulator
 
         private async void UIElement_OnTapped(object sender, TappedRoutedEventArgs e)
         {
-            List<ShopItem> thingsShopItems = new List<ShopItem>();
-            foreach (var item in main.SelectedItems)
-            {
-                thingsShopItems.Add(item as ShopItem ?? new ShopItem("owo what's dis",7));
-            }
-            string k = "";
-            double TotalPrice = 0;
+            var thingsShopItems = new List<ShopItem>();
+            foreach (var item in Main.SelectedItems)
+                thingsShopItems.Add(item as ShopItem ?? new ShopItem("owo what's dis", 7));
+            var k = "";
+            double totalPrice = 0;
             foreach (var textie in thingsShopItems)
             {
                 k += $"● {textie.Name} for {textie.Price}$ {Environment.NewLine}";
-                TotalPrice += textie.Price;
+                totalPrice += textie.Price;
             }
-            bool canAfford = Balance >= TotalPrice;
+            var canAfford = Balance >= totalPrice;
             var d = new ContentDialog
             {
-                PrimaryButtonText = canAfford? "Yes" : "Not enough money",
+                PrimaryButtonText = canAfford ? "Yes" : "Not enough money",
                 SecondaryButtonText = "No!",
                 Title = "Buy confirmation",
                 IsPrimaryButtonEnabled = canAfford,
@@ -117,12 +120,36 @@ namespace ShopSimulator
                     }
                 }
             };
-           var ok = await d.ShowAsync();
+            var ok = await d.ShowAsync();
             if (ok == ContentDialogResult.Primary)
                 foreach (var item in thingsShopItems)
-                {
                     item.Buy();
-                }
+        }
+
+        private void Ono(object sender, TextChangedEventArgs e)
+        {
+            var tokekxt = sender as TextBox;
+            double okm8;
+            if (tokekxt != null && double.TryParse(tokekxt.Text, out okm8))
+            {
+                if (okm8 > Balance)
+                    tokekxt.Text = Balance.ToString(CultureInfo.CurrentCulture);
+                if (okm8 < 0)
+                    tokekxt.Text = "0.01";
+                Okdammit.IsEnabled = true;
+            }
+            else
+            {
+                Okdammit.IsEnabled = false;
+            }
+        }
+
+
+        private void Okdammit_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            var kek = new ShopItem(NameBoxNew.Text, double.Parse(PriceBoxNew.Text), DescNew.Text, VendDescNew.Text);
+            _shopItems.Add(kek);
+            MehFlyout.Hide();
         }
     }
 
@@ -170,24 +197,34 @@ namespace ShopSimulator
         }
 
         public string UpperName => Name.ToUpper();
-        public bool CanAfford => MainPage.myself.Balance >= Price;
+        public bool CanAfford => MainPage.Myself.Balance >= Price;
         public bool IsBought { get; protected set; }
         public bool IsBoughtInversed => !IsBought;
+
         public void FlyoutInfoRequest()
         {
             MainPage.MainFrame.Navigate(typeof(ShopInfo), this);
             // await new MessageDialog("omg").ShowAsync();           
         }
 
+        public void TapFlyoutInfoRequest(object sender, TappedRoutedEventArgs e)
+        {
+            FlyoutInfoRequest();
+        }
+
+        public void DoubleTapFlyoutInfoRequest(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            FlyoutInfoRequest();
+        }
+
         public async void Buy()
         {
-            
-            if (MainPage.myself.Balance >= Price && !IsBought)
+            if ((MainPage.Myself.Balance >= Price) && !IsBought)
             {
-                MainPage.myself.Balance -= Price;
+                MainPage.Myself.Balance -= Price;
                 IsBought = true;
-                
-                MainPage.myself.RequestBought(this);
+
+                MainPage.Myself.RequestBought(this);
             }
             else if (IsBought)
             {
@@ -197,7 +234,7 @@ namespace ShopSimulator
 
         public async Task<ContentDialogResult> ShowBuyConfirmation()
         {
-            var d =  new ContentDialog
+            var d = new ContentDialog
             {
                 PrimaryButtonText = CanAfford ? "Yes !" : "Not enough money",
                 SecondaryButtonText = "No!",

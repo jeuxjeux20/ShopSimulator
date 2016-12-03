@@ -31,7 +31,49 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Add" Label="Add item">
+                    <AppBarButton.Flyout>
+                        <Flyout x:Name="MehFlyout">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Name of the object to sell :"/>
+                                    <TextBox Text="My awesome car" VerticalAlignment="Center" AllowFocusOnInteraction="True" x:Name="NameBoxNew"/>
+                                    <MenuFlyoutSeparator/>
+                                </StackPanel>
 
+                                <Pivot Grid.Row="1" Width="400">
+                                    
+                                    <PivotItem Header="Description">
+                                        <StackPanel>
+                                            <TextBox Height="92" Width="200" AllowFocusOnInteraction="True" x:Name="DescNew"/>
+                                        </StackPanel>
+                                    </PivotItem>
+
+                                    <PivotItem Header="Vendor Description">
+                                        <StackPanel>
+                                            <TextBox Height="92" Width="200" AllowFocusOnInteraction="True" x:Name="VendDescNew"/>
+                                        </StackPanel>
+                                    </PivotItem>
+                                </Pivot>
+                                <StackPanel Grid.Row="2" HorizontalAlignment="Center" >
+                                    <TextBlock Text="Price :"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBox InputScope="Number" AllowFocusOnInteraction="True" TextChanged="Ono" x:Name="PriceBoxNew"/>
+                                        <TextBlock Text="$" FontWeight="Bold" Width="20" FontSize="22" TextAlignment="Center"/>
+                                        <Button Content="Confirm ! " Margin="5,0,0,0" x:Name="Okdammit" IsEnabled="False" Tapped="Okdammit_OnTapped"/>
+                                        
+                                    </StackPanel>
+                                    
+                                </StackPanel>
+                            </Grid>
+                        </Flyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
                 <AppBarToggleButton Icon="Accept" Label="Multi selection" Unchecked="Uncheck" Checked="Checkd" />
                 <AppBarSeparator />
                 <AppBarButton Icon="Shop" Label="Buy !" Tapped="UIElement_OnTapped" x:Name="SAppBarButton" IsEnabled="False"/>
@@ -53,7 +95,7 @@
         </Grid.RowDefinitions>
         <Pivot Grid.Row="1" VerticalContentAlignment="Stretch" BorderBrush="#FF4D4D4D" BorderThickness="0,2,0,0" Margin="10,0">
             <PivotItem Header="Available Items">
-                <GridView VerticalContentAlignment="Stretch" SelectionMode="Extended" x:Name="main" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <GridView VerticalContentAlignment="Stretch" SelectionMode="Extended" x:Name="Main" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid />
@@ -61,8 +103,8 @@
                     </GridView.ItemsPanel>
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="local:ShopItem">
-                            <Border>
-                                <Grid>
+                            <Border MinWidth="180">
+                                <Grid MinWidth="180" DoubleTapped="{x:Bind DoubleTapFlyoutInfoRequest}">
                                     <Viewbox VerticalAlignment="Stretch" HorizontalAlignment="Stretch" StretchDirection="DownOnly">
                                         <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextAlignment="Center">
                                 <Run Text="{x:Bind Name}" /> -
@@ -74,6 +116,8 @@
                                     <Grid.ContextFlyout>
                                         <MenuFlyout>
                                             <MenuFlyoutItem Text="More info" Click="{x:Bind FlyoutInfoRequest}" />
+                                            <MenuFlyoutSeparator/>
+                                            <MenuFlyoutItem Text="Buy" Click="{x:Bind ShowBuyConfirmation}"/>
                                         </MenuFlyout>
                                     </Grid.ContextFlyout>
                                 </Grid>
@@ -146,6 +190,7 @@
                             <Setter Property="Width" Value="180" />
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            
                         </Style>
 
                     </GridView.ItemContainerStyle>
@@ -172,7 +217,7 @@
             </PivotItem>
         </Pivot>
 
-        <Frame x:Name="frame" />
+        <Frame x:Name="Frame" />
 
     </Grid>
 </Page>
